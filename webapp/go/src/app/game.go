@@ -382,7 +382,7 @@ func calcStatus(currentTime int64, mItems map[int]mItem, addings []Adding, buyin
 }
 
 func serveGameConn(conn *websocket.Conn, roomName string) {
-	ws := &WebSocket{Conn: conn}
+	ws := NewWebSocket(conn)
 	log.Println(ws.RemoteAddr(), "serveGameConn", roomName)
 
 	defer ws.Close()

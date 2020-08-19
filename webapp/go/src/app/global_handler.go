@@ -8,18 +8,16 @@ import (
 
 var (
 	// map[roomName][]websocketConnection
-	wsConnsMap = make(map[string][]*WebSocket)
+	wsConnsMap = make(map[string]map[int]*WebSocket)
 )
 
 func RoomNameTickerHandler(roomName string, ws *WebSocket) {
-	if conns, ok := wsConnsMap[roomName]; ok {
-		wsConnsMap[roomName] = append(wsConnsMap[roomName], ws)
-		fmt.Println("RoomNameTickerHandler: len(conns)", len(conns))
-		fmt.Println("RoomNameTickerHandler: ok", ok)
-
+	if _, ok := wsConnsMap[roomName]; ok {
+		wsConnsMap[roomName][ws.ID] = ws
 		return
 	}
-	wsConnsMap[roomName] = append(wsConnsMap[roomName], ws)
+	wsConnsMap[roomName] = make(map[int]*WebSocket)
+	wsConnsMap[roomName][ws.ID] = ws
 
 	ticker := time.NewTicker(500 * time.Millisecond)
 	defer ticker.Stop()
@@ -38,7 +36,7 @@ func RoomNameTickerHandler(roomName string, ws *WebSocket) {
 			err = conn.WriteJson(status)
 			if err != nil {
 				log.Println(err)
-				return
+				delete(conns, conn.ID)
 			}
 		}
 	}
