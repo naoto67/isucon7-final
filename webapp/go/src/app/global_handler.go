@@ -36,6 +36,7 @@ func RoomNameTickerHandler(roomName string, ws *websocket.Conn) {
 
 		conns, _ := wsConnsMap[roomName]
 		for _, conn := range conns {
+			fmt.Println("WriteJSON: status", status)
 			err = conn.WriteJSON(status)
 			if err != nil {
 				log.Println(err)
