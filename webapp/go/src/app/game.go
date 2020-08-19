@@ -304,7 +304,6 @@ func buyItem(roomName string, itemID int, countBought int, reqTime int64) bool {
 	}
 
 	var item mItem
-	tx.Get(&item, "SELECT * FROM m_item WHERE item_id = ?", itemID)
 	item, _ = M_ITEM_DICT[itemID]
 	need := new(big.Int).Mul(item.GetPrice(countBought+1), big.NewInt(1000))
 	if totalMilliIsu.Cmp(need) < 0 {
