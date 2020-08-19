@@ -37,6 +37,6 @@ func NewWebSocket(conn *websocket.Conn) *WebSocket {
 
 func (ws *WebSocket) WriteJson(v interface{}) error {
 	ws.mux.Lock()
-	defer ws.mux.Lock()
+	defer ws.mux.Unlock()
 	return ws.WriteJSON(v)
 }
