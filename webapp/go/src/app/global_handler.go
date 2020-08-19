@@ -21,6 +21,7 @@ func RoomNameTickerHandler(roomName string, ws *websocket.Conn) {
 
 		return
 	}
+	wsConnsMap[roomName] = append(wsConnsMap[roomName], ws)
 
 	ticker := time.NewTicker(500 * time.Millisecond)
 	defer ticker.Stop()
