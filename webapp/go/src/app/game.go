@@ -381,8 +381,10 @@ func calcStatus(currentTime int64, mItems map[int]mItem, addings []Adding, buyin
 	}, nil
 }
 
-func serveGameConn(ws *websocket.Conn, roomName string) {
+func serveGameConn(conn *websocket.Conn, roomName string) {
+	ws := &WebSocket{Conn: conn}
 	log.Println(ws.RemoteAddr(), "serveGameConn", roomName)
+
 	defer ws.Close()
 
 	go RoomNameTickerHandler(roomName, ws)
@@ -434,14 +436,14 @@ func serveGameConn(ws *websocket.Conn, roomName string) {
 					return
 				}
 
-				err = ws.WriteJSON(status)
+				err = ws.WriteJson(status)
 				if err != nil {
 					log.Println(err)
 					return
 				}
 			}
 
-			err := ws.WriteJSON(GameResponse{
+			err := ws.WriteJson(GameResponse{
 				RequestID: req.RequestID,
 				IsSuccess: success,
 			})

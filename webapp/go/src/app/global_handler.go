@@ -4,16 +4,14 @@ import (
 	"fmt"
 	"log"
 	"time"
-
-	"github.com/gorilla/websocket"
 )
 
 var (
 	// map[roomName][]websocketConnection
-	wsConnsMap = make(map[string][]*websocket.Conn)
+	wsConnsMap = make(map[string][]*WebSocket)
 )
 
-func RoomNameTickerHandler(roomName string, ws *websocket.Conn) {
+func RoomNameTickerHandler(roomName string, ws *WebSocket) {
 	if conns, ok := wsConnsMap[roomName]; ok {
 		wsConnsMap[roomName] = append(wsConnsMap[roomName], ws)
 		fmt.Println("RoomNameTickerHandler: len(conns)", len(conns))
@@ -37,7 +35,7 @@ func RoomNameTickerHandler(roomName string, ws *websocket.Conn) {
 		conns, _ := wsConnsMap[roomName]
 		for _, conn := range conns {
 			fmt.Println("WriteJSON: status", status)
-			err = conn.WriteJSON(status)
+			err = conn.WriteJson(status)
 			if err != nil {
 				log.Println(err)
 				return
