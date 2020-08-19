@@ -60,6 +60,11 @@ func getInitializeHandler(w http.ResponseWriter, r *http.Request) {
 	db.MustExec("TRUNCATE TABLE adding")
 	db.MustExec("TRUNCATE TABLE buying")
 	db.MustExec("TRUNCATE TABLE room_time")
+	err := InitItemCache()
+	if err != nil {
+		w.WriteHeader(500)
+		return
+	}
 	w.WriteHeader(204)
 }
 
