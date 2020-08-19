@@ -20,3 +20,13 @@ func InitItemCache() error {
 	}
 	return nil
 }
+
+func FetchMItems() (map[int]mItem, error) {
+	if len(M_ITEMS) == 0 {
+		err := InitItemCache()
+		if err != nil {
+			return nil, err
+		}
+	}
+	return M_ITEM_DICT, nil
+}

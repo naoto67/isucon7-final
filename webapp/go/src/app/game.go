@@ -147,9 +147,10 @@ func buyItem(roomName string, itemID int, countBought int, reqTime int64) bool {
 		tx.Rollback()
 		return false
 	}
+	dict, _ := FetchMItems()
 	for _, b := range buyings {
 		var item mItem
-		item, _ = M_ITEM_DICT[b.ItemID]
+		item, _ = dict[b.ItemID]
 		cost := new(big.Int).Mul(item.GetPrice(b.Ordinal), big.NewInt(1000))
 		totalMilliIsu.Sub(totalMilliIsu, cost)
 		if b.Time <= reqTime {
@@ -159,7 +160,7 @@ func buyItem(roomName string, itemID int, countBought int, reqTime int64) bool {
 	}
 
 	var item mItem
-	item, _ = M_ITEM_DICT[itemID]
+	item, _ = dict[itemID]
 	need := new(big.Int).Mul(item.GetPrice(countBought+1), big.NewInt(1000))
 	if totalMilliIsu.Cmp(need) < 0 {
 		log.Println("not enough")
@@ -194,7 +195,7 @@ func getStatus(roomName string) (*GameStatus, error) {
 		return nil, fmt.Errorf("updateRoomTime failure")
 	}
 
-	mItems := M_ITEM_DICT
+	mItems, _ := FetchMItems()
 	addings := []Adding{}
 	err = tx.Select(&addings, "SELECT time, isu FROM adding WHERE room_name = ?", roomName)
 	if err != nil {
