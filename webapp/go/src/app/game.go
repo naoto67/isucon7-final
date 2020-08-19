@@ -385,7 +385,7 @@ func serveGameConn(ws *websocket.Conn, roomName string) {
 	log.Println(ws.RemoteAddr(), "serveGameConn", roomName)
 	defer ws.Close()
 
-	RoomNameTickerHandler(roomName, ws)
+	go RoomNameTickerHandler(roomName, ws)
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
