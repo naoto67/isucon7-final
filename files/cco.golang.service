@@ -1,0 +1,15 @@
+[Unit]
+Description = vagrant7final main application in golang
+
+[Service]
+WorkingDirectory=/home/vagrant/webapp/go/
+EnvironmentFile=/home/vagrant/env.sh
+ExecStart = /home/vagrant/webapp/go/app
+
+Restart   = always
+Type      = simple
+User      = vagrant
+Group     = vagrant
+
+[Install]
+WantedBy = multi-user.target
