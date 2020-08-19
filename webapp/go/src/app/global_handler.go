@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"time"
 
@@ -13,8 +14,10 @@ var (
 )
 
 func RoomNameTickerHandler(roomName string, ws *websocket.Conn) {
-	if _, ok := wsConnsMap[roomName]; ok {
+	if conns, ok := wsConnsMap[roomName]; ok {
 		wsConnsMap[roomName] = append(wsConnsMap[roomName], ws)
+		fmt.Println("RoomNameTickerHandler: len(conns)", len(conns))
+		fmt.Println("RoomNameTickerHandler: ok", ok)
 
 		return
 	}
