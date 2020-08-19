@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"math/big"
-	"time"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/websocket"
@@ -386,17 +385,7 @@ func serveGameConn(ws *websocket.Conn, roomName string) {
 	log.Println(ws.RemoteAddr(), "serveGameConn", roomName)
 	defer ws.Close()
 
-	status, err := getStatus(roomName)
-	if err != nil {
-		log.Println(err)
-		return
-	}
-
-	err = ws.WriteJSON(status)
-	if err != nil {
-		log.Println(err)
-		return
-	}
+	RoomNameTickerHandler(roomName, ws)
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -420,9 +409,6 @@ func serveGameConn(ws *websocket.Conn, roomName string) {
 			}
 		}
 	}()
-
-	ticker := time.NewTicker(500 * time.Millisecond)
-	defer ticker.Stop()
 
 	for {
 		select {
@@ -459,18 +445,6 @@ func serveGameConn(ws *websocket.Conn, roomName string) {
 				RequestID: req.RequestID,
 				IsSuccess: success,
 			})
-			if err != nil {
-				log.Println(err)
-				return
-			}
-		case <-ticker.C:
-			status, err := getStatus(roomName)
-			if err != nil {
-				log.Println(err)
-				return
-			}
-
-			err = ws.WriteJSON(status)
 			if err != nil {
 				log.Println(err)
 				return
