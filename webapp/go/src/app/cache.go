@@ -10,7 +10,7 @@ func InitItemCache() error {
 		return nil
 	}
 	var items []mItem
-	err := db.Select(&items, "SELECT * FROM items")
+	err := db.Select(&items, "SELECT * FROM m_item")
 	if err != nil {
 		return err
 	}
