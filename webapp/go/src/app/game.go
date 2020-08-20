@@ -85,7 +85,6 @@ func addIsu(roomName string, reqIsu *big.Int, reqTime int64) bool {
 			return false
 		}
 		isu := str2big(isuStr)
-
 		isu.Add(isu, reqIsu)
 		_, err = tx.Exec("UPDATE adding SET isu = ? WHERE room_name = ? AND time = ?", isu.String(), roomName, reqTime)
 		if err != nil {
@@ -93,11 +92,12 @@ func addIsu(roomName string, reqIsu *big.Int, reqTime int64) bool {
 			tx.Rollback()
 			return false
 		}
-		if err := tx.Commit(); err != nil {
-			log.Println(err)
-			return false
-		}
 	}
+	if err := tx.Commit(); err != nil {
+		log.Println(err)
+		return false
+	}
+
 	return true
 }
 
