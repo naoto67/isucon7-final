@@ -45,7 +45,7 @@ func AddIsuFromQueue(roomName string, reqTime int64) bool {
 	defer isuMux.Unlock()
 	key := fmt.Sprintf("%s-%d", roomName, reqTime)
 	isus := addIsuMap[key]
-	var isu *big.Int
+	isu := big.NewInt(0)
 	for _, v := range isus {
 		isu.Add(isu, v)
 	}
