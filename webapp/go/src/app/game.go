@@ -64,7 +64,7 @@ func addIsu(roomName string, reqIsu *big.Int, reqTime int64) bool {
 		return false
 	}
 
-	_, err = tx.Exec("INSERT INTO adding(room_name, time, isu) VALUES (?, ?, ?)", roomName, reqTime, reqIsu)
+	_, err = tx.Exec("INSERT INTO adding(room_name, time, isu) VALUES (?, ?, ?)", roomName, reqTime, reqIsu.String())
 	if err != nil {
 		var isuStr string
 		err = tx.QueryRow("SELECT isu FROM adding WHERE room_name = ? AND time = ? FOR UPDATE", roomName, reqTime).Scan(&isuStr)
