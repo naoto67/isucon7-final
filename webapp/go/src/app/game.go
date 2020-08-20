@@ -64,6 +64,8 @@ func addIsu(roomName string, reqIsu *big.Int, reqTime int64) bool {
 		return false
 	}
 
+	fmt.Println("DEBUG: addIsu: reqIsu", reqIsu)
+	fmt.Println("DEBUG: addIsu: reqTime", reqTime)
 	_, err = tx.Exec("INSERT INTO adding(room_name, time, isu) VALUES (?, ?, '0') ON DUPLICATE KEY UPDATE isu=isu", roomName, reqTime)
 	if err != nil {
 		log.Println(err)
