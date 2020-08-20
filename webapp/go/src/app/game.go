@@ -64,7 +64,7 @@ func addIsu(roomName string, reqIsu *big.Int, reqTime int64) bool {
 		return false
 	}
 
-	_, err = tx.Exec("INSERT INTO adding(room_name, time, isu) VALUES (?, ?, '0')", roomName, reqTime)
+	_, err = tx.Exec("INSERT INTO adding(room_name, time, isu) VALUES (?, ?, ?)", roomName, reqTime, reqIsu)
 	if err != nil {
 		log.Println("INSERT INTO adding: err", err)
 
