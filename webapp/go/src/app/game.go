@@ -64,35 +64,39 @@ func addIsu(roomName string, reqIsu *big.Int, reqTime int64) bool {
 		return false
 	}
 
-	fmt.Println("DEBUG: addIsu: reqIsu", reqIsu)
-	fmt.Println("DEBUG: addIsu: reqTime", reqTime)
-	_, err = tx.Exec("INSERT INTO adding(room_name, time, isu) VALUES (?, ?, '0') ON DUPLICATE KEY UPDATE isu=isu", roomName, reqTime)
+	_, err = tx.Exec("INSERT INTO adding(room_name, time, isu) VALUES (?, ?, '0')", roomName, reqTime)
 	if err != nil {
-		log.Println(err)
-		tx.Rollback()
-		return false
-	}
+		log.Println("INSERT INTO adding: err", err)
 
-	var isuStr string
-	err = tx.QueryRow("SELECT isu FROM adding WHERE room_name = ? AND time = ? FOR UPDATE", roomName, reqTime).Scan(&isuStr)
-	if err != nil {
-		log.Println(err)
-		tx.Rollback()
-		return false
-	}
-	isu := str2big(isuStr)
+		fmt.Println("DEBUG: addIsu: reqIsu", reqIsu)
+		fmt.Println("DEBUG: addIsu: reqTime", reqTime)
+		_, err = tx.Exec("INSERT INTO adding(room_name, time, isu) VALUES (?, ?, '0') ON DUPLICATE KEY UPDATE isu=isu", roomName, reqTime)
+		if err != nil {
+			log.Println(err)
+			tx.Rollback()
+			return false
+		}
 
-	isu.Add(isu, reqIsu)
-	_, err = tx.Exec("UPDATE adding SET isu = ? WHERE room_name = ? AND time = ?", isu.String(), roomName, reqTime)
-	if err != nil {
-		log.Println(err)
-		tx.Rollback()
-		return false
-	}
+		var isuStr string
+		err = tx.QueryRow("SELECT isu FROM adding WHERE room_name = ? AND time = ? FOR UPDATE", roomName, reqTime).Scan(&isuStr)
+		if err != nil {
+			log.Println(err)
+			tx.Rollback()
+			return false
+		}
+		isu := str2big(isuStr)
 
-	if err := tx.Commit(); err != nil {
-		log.Println(err)
-		return false
+		isu.Add(isu, reqIsu)
+		_, err = tx.Exec("UPDATE adding SET isu = ? WHERE room_name = ? AND time = ?", isu.String(), roomName, reqTime)
+		if err != nil {
+			log.Println(err)
+			tx.Rollback()
+			return false
+		}
+		if err := tx.Commit(); err != nil {
+			log.Println(err)
+			return false
+		}
 	}
 	return true
 }
