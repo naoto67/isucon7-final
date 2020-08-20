@@ -52,43 +52,48 @@ func updateRoomTime(tx *sqlx.Tx, roomName string, reqTime int64) (int64, bool) {
 }
 
 func addIsu(roomName string, reqIsu *big.Int, reqTime int64) bool {
-	tx, err := db.Beginx()
-	if err != nil {
-		log.Println(err)
-		return false
-	}
-
-	_, ok := updateRoomTime(tx, roomName, reqTime)
-	if !ok {
-		tx.Rollback()
-		return false
-	}
-
-	_, err = tx.Exec("INSERT INTO adding(room_name, time, isu) VALUES (?, ?, ?)", roomName, reqTime, reqIsu.String())
-	if err != nil {
-		var isuStr string
-		err = tx.QueryRow("SELECT isu FROM adding WHERE room_name = ? AND time = ? FOR UPDATE", roomName, reqTime).Scan(&isuStr)
-		if err != nil {
-			log.Println(err)
-			tx.Rollback()
-			return false
-		}
-		isu := str2big(isuStr)
-		isu.Add(isu, reqIsu)
-		_, err = tx.Exec("UPDATE adding SET isu = ? WHERE room_name = ? AND time = ?", isu.String(), roomName, reqTime)
-		if err != nil {
-			log.Println(err)
-			tx.Rollback()
-			return false
-		}
-	}
-	if err := tx.Commit(); err != nil {
-		log.Println(err)
-		return false
-	}
-
-	return true
+	pushIsuToMap(roomName, reqIsu, reqTime)
+	return AddIsuFromQueue(roomName, reqTime)
 }
+
+// func addIsu(roomName string, reqIsu *big.Int, reqTime int64) bool {
+// 	tx, err := db.Beginx()
+// 	if err != nil {
+// 		log.Println(err)
+// 		return false
+// 	}
+//
+// 	_, ok := updateRoomTime(tx, roomName, reqTime)
+// 	if !ok {
+// 		tx.Rollback()
+// 		return false
+// 	}
+//
+// 	_, err = tx.Exec("INSERT INTO adding(room_name, time, isu) VALUES (?, ?, ?)", roomName, reqTime, reqIsu.String())
+// 	if err != nil {
+// 		var isuStr string
+// 		err = tx.QueryRow("SELECT isu FROM adding WHERE room_name = ? AND time = ? FOR UPDATE", roomName, reqTime).Scan(&isuStr)
+// 		if err != nil {
+// 			log.Println(err)
+// 			tx.Rollback()
+// 			return false
+// 		}
+// 		isu := str2big(isuStr)
+// 		isu.Add(isu, reqIsu)
+// 		_, err = tx.Exec("UPDATE adding SET isu = ? WHERE room_name = ? AND time = ?", isu.String(), roomName, reqTime)
+// 		if err != nil {
+// 			log.Println(err)
+// 			tx.Rollback()
+// 			return false
+// 		}
+// 	}
+// 	if err := tx.Commit(); err != nil {
+// 		log.Println(err)
+// 		return false
+// 	}
+//
+// 	return true
+// }
 
 func buyItem(roomName string, itemID int, countBought int, reqTime int64) bool {
 	tx, err := db.Beginx()

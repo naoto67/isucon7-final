@@ -19,14 +19,14 @@ func pushIsuToMap(roomName string, reqIsu *big.Int, reqTime int64) {
 	addIsuMap[key] = append(addIsuMap[key], reqIsu)
 }
 
-func popIsuMap(roomName string, reqTime int64) []*big.Int {
-	isuMux.Lock()
-	defer isuMux.Unlock()
-	key := fmt.Sprintf("%s-%d", roomName, reqTime)
-	res := addIsuMap[key]
-	addIsuMap[key] = []*big.Int{}
-	return res
-}
+// func popIsuMap(roomName string, reqTime int64) []*big.Int {
+// 	isuMux.Lock()
+// 	defer isuMux.Unlock()
+// 	key := fmt.Sprintf("%s-%d", roomName, reqTime)
+// 	res := addIsuMap[key]
+// 	addIsuMap[key] = []*big.Int{}
+// 	return res
+// }
 
 func AddIsuFromQueue(roomName string, reqTime int64) bool {
 	tx, err := db.Beginx()
@@ -40,7 +40,11 @@ func AddIsuFromQueue(roomName string, reqTime int64) bool {
 		tx.Rollback()
 		return false
 	}
-	isus := popIsuMap(roomName, reqTime)
+
+	isuMux.Lock()
+	defer isuMux.Unlock()
+	key := fmt.Sprintf("%s-%d", roomName, reqTime)
+	isus := addIsuMap[key]
 	var isu *big.Int
 	for _, v := range isus {
 		isu.Add(isu, v)
@@ -52,9 +56,6 @@ func AddIsuFromQueue(roomName string, reqTime int64) bool {
 		err = tx.QueryRow("SELECT isu FROM adding WHERE room_name = ? AND time = ? FOR UPDATE", roomName, reqTime).Scan(&isuStr)
 		if err != nil {
 			log.Println(err)
-			for _, v := range isus {
-				pushIsuToMap(roomName, v, reqTime)
-			}
 			tx.Rollback()
 			return false
 		}
@@ -64,19 +65,14 @@ func AddIsuFromQueue(roomName string, reqTime int64) bool {
 		if err != nil {
 			log.Println(err)
 			tx.Rollback()
-			for _, v := range isus {
-				pushIsuToMap(roomName, v, reqTime)
-			}
 			return false
 		}
 	}
 	if err := tx.Commit(); err != nil {
 		log.Println(err)
-		for _, v := range isus {
-			pushIsuToMap(roomName, v, reqTime)
-		}
 		return false
 	}
 
+	addIsuMap[key] = []*big.Int{}
 	return true
 }
