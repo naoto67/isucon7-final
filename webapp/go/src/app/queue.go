@@ -5,6 +5,7 @@ import (
 	"log"
 	"math/big"
 	"sync"
+	"time"
 )
 
 var (
@@ -41,6 +42,7 @@ func AddIsuFromQueue(roomName string, reqTime int64) bool {
 		return false
 	}
 
+	time.Sleep(100 * time.Microsecond)
 	isuMux.Lock()
 	defer isuMux.Unlock()
 	key := fmt.Sprintf("%s-%d", roomName, reqTime)
