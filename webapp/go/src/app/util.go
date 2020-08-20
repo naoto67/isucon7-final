@@ -34,3 +34,8 @@ func getCurrentTime() (int64, error) {
 	}
 	return currentTime, nil
 }
+
+func CreateRoomTime(roomName string) error {
+	_, err := db.Exec("INSERT INTO room_time(room_name, time) VALUES (?, 0) ON DUPLICATE KEY UPDATE time = time", roomName)
+	return err
+}

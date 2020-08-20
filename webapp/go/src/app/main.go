@@ -65,6 +65,7 @@ func getInitializeHandler(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(500)
 		return
 	}
+	wsConnsMap = make(map[string]map[int]*WebSocket)
 	w.WriteHeader(204)
 }
 
@@ -88,6 +89,11 @@ func wsGameHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
 	roomName := vars["room_name"]
+	err := CreateRoomTime(roomName)
+	if err != nil {
+		log.Println("Failed to create room time", err)
+		return
+	}
 
 	ws, err := websocket.Upgrade(w, r, nil, 1024, 1024)
 	if _, ok := err.(websocket.HandshakeError); ok {
